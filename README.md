@@ -1,10 +1,10 @@
 # Lumen Data Science 2025 - Detekcija Melanoma
 
-Predstavljamo naše rješenje za natjecanje **Lumen Data Science 2025**! Ove godine fokusiramo se na izazov detekcije melanoma, neovisno o boji kože. Cilj je razviti inovativna rješenja koja će unaprijediti dijagnostiku i omogućiti pravedniji pristup zdravstvenoj skrbi.
+Predstavljamo naše rješenje za natjecanje **Lumen Data Science 2025**! 
 
 ## Opis Zadatka
 
-Melanom je jedan od najsmrtonosnijih oblika raka kože, ali rana detekcija značajno povećava šanse za uspješno liječenje. Tradicionalni modeli detekcije često su pristrani prema određenim tonovima kože, što može dovesti do nejednakosti u dijagnostici. Vaš zadatak je:
+Melanom je jedan od najsmrtonosnijih oblika raka kože, ali rana detekcija značajno povećava šanse za uspješno liječenje. Tradicionalni modeli detekcije često su pristrani prema određenim tonovima kože, što može dovesti do nejednakosti u dijagnostici. Naš zadatak je:
 
 - Razviti model strojnog učenja koji precizno detektira melanom na slikama kože.
 - Osigurati da model radi jednako dobro na različitim tonovima kože.
