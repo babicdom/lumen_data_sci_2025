@@ -19,7 +19,7 @@ from util import GradualWarmupSchedulerV2
 import apex
 from apex import amp
 from dataset import get_df, get_transforms, MelanomaDataset
-from models import Effnet_Melanoma, Resnest_Melanoma, Seresnext_Melanoma
+from src.model import Effnet_Melanoma, Resnest_Melanoma, Seresnext_Melanoma
 
 
 def parse_args():
