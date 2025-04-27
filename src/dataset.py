@@ -89,6 +89,7 @@ def get_transforms(image_size):
 def get_meta_data(df_train, df_test):
 
     # One-hot encoding of anatom_site_general_challenge feature
+    df_test.rename(columns={'anatom_site_general': 'anatom_site_general_challenge'}, inplace=True)
     concat = pd.concat([df_train['anatom_site_general_challenge'], df_test['anatom_site_general_challenge']], ignore_index=True)
     dummies = pd.get_dummies(concat, dummy_na=True, dtype=np.uint8, prefix='site')
     df_train = pd.concat([df_train, dummies.iloc[:df_train.shape[0]]], axis=1)
@@ -128,12 +129,11 @@ def get_meta_data(df_train, df_test):
     return df_train, df_test, meta_features, n_meta_features
 
 
-def get_df(kernel_type, out_dim, data_dir, data_folder, use_meta):
+def get_df(kernel_type, data_dir, use_meta):
 
     # 2020 data
-    df_train = pd.read_csv(os.path.join(data_dir, f'jpeg-melanoma-{data_folder}x{data_folder}', 'train.csv'))
-    df_train = df_train[df_train['tfrecord'] != -1].reset_index(drop=True)
-    df_train['filepath'] = df_train['image_name'].apply(lambda x: os.path.join(data_dir, f'jpeg-melanoma-{data_folder}x{data_folder}/train', f'{x}.jpg'))
+    df_train = pd.read_csv(os.path.join(data_dir, 'ISIC_2020_Train_Metadata.csv'))
+    df_train['filepath'] = df_train['image_name'].apply(lambda x: os.path.join(data_dir, 'train', f'{x}.jpg'))
 
     if 'newfold' in kernel_type:
         tfrecord2fold = {
@@ -153,19 +153,8 @@ def get_df(kernel_type, out_dim, data_dir, data_folder, use_meta):
             3:3, 8:3, 11:3,
             6:4, 7:4, 14:4,
         }
-    df_train['fold'] = df_train['tfrecord'].map(tfrecord2fold)
+    # df_train['fold'] = df_train['tfrecord'].map(tfrecord2fold)
     df_train['is_ext'] = 0
-
-    # 2018, 2019 data (external data)
-    df_train2 = pd.read_csv(os.path.join(data_dir, f'jpeg-isic2019-{data_folder}x{data_folder}', 'train.csv'))
-    df_train2 = df_train2[df_train2['tfrecord'] >= 0].reset_index(drop=True)
-    df_train2['filepath'] = df_train2['image_name'].apply(lambda x: os.path.join(data_dir, f'jpeg-isic2019-{data_folder}x{data_folder}/train', f'{x}.jpg'))
-    if 'newfold' in kernel_type:
-        df_train2['tfrecord'] = df_train2['tfrecord'] % 15
-        df_train2['fold'] = df_train2['tfrecord'].map(tfrecord2fold)
-    else:
-        df_train2['fold'] = df_train2['tfrecord'] % 5
-    df_train2['is_ext'] = 1
 
     # Preprocess Target
     df_train['diagnosis']  = df_train['diagnosis'].apply(lambda x: x.replace('seborrheic keratosis', 'BKL'))
@@ -175,26 +164,9 @@ def get_df(kernel_type, out_dim, data_dir, data_folder, use_meta):
     df_train['diagnosis']  = df_train['diagnosis'].apply(lambda x: x.replace('cafe-au-lait macule', 'unknown'))
     df_train['diagnosis']  = df_train['diagnosis'].apply(lambda x: x.replace('atypical melanocytic proliferation', 'unknown'))
 
-    if out_dim == 9:
-        df_train2['diagnosis'] = df_train2['diagnosis'].apply(lambda x: x.replace('NV', 'nevus'))
-        df_train2['diagnosis'] = df_train2['diagnosis'].apply(lambda x: x.replace('MEL', 'melanoma'))
-    elif out_dim == 4:
-        df_train2['diagnosis'] = df_train2['diagnosis'].apply(lambda x: x.replace('NV', 'nevus'))
-        df_train2['diagnosis'] = df_train2['diagnosis'].apply(lambda x: x.replace('MEL', 'melanoma'))
-        df_train2['diagnosis'] = df_train2['diagnosis'].apply(lambda x: x.replace('DF', 'unknown'))
-        df_train2['diagnosis'] = df_train2['diagnosis'].apply(lambda x: x.replace('AK', 'unknown'))
-        df_train2['diagnosis'] = df_train2['diagnosis'].apply(lambda x: x.replace('SCC', 'unknown'))
-        df_train2['diagnosis'] = df_train2['diagnosis'].apply(lambda x: x.replace('VASC', 'unknown'))
-        df_train2['diagnosis'] = df_train2['diagnosis'].apply(lambda x: x.replace('BCC', 'unknown'))
-    else:
-        raise NotImplementedError()
-
-    # concat train data
-    df_train = pd.concat([df_train, df_train2]).reset_index(drop=True)
-
     # test data
-    df_test = pd.read_csv(os.path.join(data_dir, f'jpeg-melanoma-{data_folder}x{data_folder}', 'test.csv'))
-    df_test['filepath'] = df_test['image_name'].apply(lambda x: os.path.join(data_dir, f'jpeg-melanoma-{data_folder}x{data_folder}/test', f'{x}.jpg'))
+    df_test = pd.read_csv(os.path.join(data_dir, 'ISIC_2020_Test_Metadata.csv'))
+    df_test['filepath'] = df_test['image'].apply(lambda x: os.path.join(data_dir, f'test', f'{x}.jpg'))
 
     if use_meta:
         df_train, df_test, meta_features, n_meta_features = get_meta_data(df_train, df_test)
@@ -208,3 +180,6 @@ def get_df(kernel_type, out_dim, data_dir, data_folder, use_meta):
     mel_idx = diagnosis2idx['melanoma']
 
     return df_train, df_test, meta_features, n_meta_features, mel_idx
+
+if __name__ == '__main__':
+    df_train, df_test, meta_features, n_meta_features, mel_idx = get_df('oldfold', 'data/', True)
